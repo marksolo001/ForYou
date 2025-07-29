@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ты прекрасна!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;600&display=swap');
+        
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --dark: #292F36;
+            --light: #F7FFF7;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f8f9fa;
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+        
+        .title-font {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+        
+        .floating {
+            animation: floating 6s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .chat-bubble {
+            position: relative;
+            background: white;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 80%;
+            margin: 1rem auto;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+        
+        .chat-bubble.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .chat-bubble:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: white transparent transparent;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            padding: 1rem;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            margin: 0 2px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            opacity: 0;
+            animation: typingAnimation 1.5s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.3s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.6s; }
+        
+        @keyframes typingAnimation {
+            0%, 100% { opacity: 0; transform: translateY(0); }
+            50% { opacity: 1; transform: translateY(-5px); }
+        }
+        
+        .heart-beat {
+            animation: heartBeat 1.5s infinite;
+        }
+        
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .btn-glow {
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-glow:hover {
+            box-shadow: 0 0 25px rgba(255, 107, 107, 0.8);
+            transform: translateY(-2px);
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary);
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <header class="gradient-bg text-white py-12 px-4 md:px-8 text-center">
+        <div class="container mx-auto">
+            <h1 class="title-font text-4xl md:text-6xl font-bold mb-6 animate__animated animate__fadeInDown">Ты прекрасна!</h1>
+            <p class="text-xl md:text-2xl mb-8 animate__animated animate__fadeIn animate__delay-1s">Сайт, который всегда напомнит тебе о твоей красоте</p>
+            <div class="animate__animated animate__fadeIn animate__delay-2s">
+                <button id="startBtn" class="btn-glow bg-white text-pink-600 font-bold py-3 px-8 rounded-full text-lg hover:bg-gray-100 transition-all duration-300">
+                    Начать разговор
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-12">
+        <div class="max-w-3xl mx-auto">
+            <!-- Hero Image -->
+            <div class="text-center mb-16">
+                <img src="./мишка.jpg" 
+                     alt="мишка" 
+                     class="w-48 h-48 md:w-64 md:h-64 mx-auto rounded-full object-cover border-4 border-white shadow-xl floating">
+            </div>
+            
+            <!-- Chat Section -->
+            <div id="chatContainer" class="hidden">
+                <div class="bg-white rounded-3xl shadow-xl overflow-hidden">
+                    <!-- Chat Header -->
+                    <div class="gradient-bg text-white p-4 flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center mr-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-pink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Виртуальный друг</h3>
+                            <p class="text-xs opacity-80">онлайн</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Chat Messages -->
+                    <div class="p-4 h-96 overflow-y-auto" id="chatMessages">
+                        <!-- Messages will be added here dynamically -->
+                    </div>
+                    
+                    <!-- Input Area -->
+                    <div class="border-t p-4 bg-gray-50">
+                        <div class="flex">
+                            <input type="text" id="userInput" placeholder="Напиши мне что-нибудь..." 
+                                   class="flex-grow px-4 py-3 rounded-l-full border focus:outline-none focus:ring-2 focus:ring-pink-500">
+                            <button id="sendBtn" class="gradient-bg text-white px-6 py-3 rounded-r-full hover:opacity-90 transition">
+                                Отправить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Compliment Section -->
+            <div id="complimentSection" class="hidden text-center mt-16">
+                <div class="inline-block relative">
+                    <img src="./розы.png" 
+                         alt="цветы" 
+                         class="w-48 h-48 rounded-full object-cover border-4 border-white shadow-xl heart-beat">
+                    <div class="absolute -top-4 -right-4 bg-pink-600 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg animate__animated animate__bounceIn">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                    </div>
+                </div>
+                
+                <h2 class="title-font text-3xl md:text-4xl font-bold mt-8 mb-6 text-pink-600 animate__animated animate__fadeIn">Ты просто восхитительна!</h2>
+                <p class="text-lg md:text-xl mb-8 animate__animated animate__fadeIn animate__delay-1s">Твоя улыбка делает мир ярче, а глаза сияют, как звёзды</p>
+                
+                <button id="newComplimentBtn" class="gradient-bg text-white font-bold py-3 px-8 rounded-full text-lg hover:opacity-90 transition-all duration-300 btn-glow animate__animated animate__fadeIn animate__delay-2s">
+                    Ещё комплимент
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-100 py-8 text-center text-gray-600">
+        <div class="container mx-auto px-4">
+            <p>© 2025 Ты прекрасна! Все права защищены.</p>
+            <p class="mt-2 text-sm">Сделано с YBYRAI ❤️ для прекрасных людей</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const startBtn = document.getElementById('startBtn');
+            const chatContainer = document.getElementById('chatContainer');
+            const chatMessages = document.getElementById('chatMessages');
+            const userInput = document.getElementById('userInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const complimentSection = document.getElementById('complimentSection');
+            const newComplimentBtn = document.getElementById('newComplimentBtn');
+            
+            // Compliments database
+            const compliments = [
+                "Ты излучаешь позитив и свет!",
+                "Твоя улыбка делает мир лучше!",
+                "Ты невероятно обаятельна!",
+                "Твой внутренний свет сияет ярче солнца!",
+                "Ты вдохновляешь окружающих!",
+                "Твоя красота неповторима!",
+                "Ты обладаешь магической притягательностью!",
+                "Твои глаза как океан - в них можно утонуть!",
+                "Ты выглядишь потрясающе сегодня!",
+                "Ты - произведение искусства!",
+                "Твоя энергетика заряжает позитивом!",
+                "Ты прекрасна внутри и снаружи!",
+                "Ты сияешь, как драгоценный камень!",
+                "Ты - воплощение грации и элегантности!",
+                "Твоя красота заставляет сердца биться чаще!"
+            ];
+            
+            // Start conversation
+            startBtn.addEventListener('click', function() {
+                startBtn.classList.add('animate__animated', 'animate__fadeOut');
+                setTimeout(() => {
+                    startBtn.style.display = 'none';
+                    chatContainer.classList.remove('hidden');
+                    chatContainer.classList.add('animate__animated', 'animate__fadeIn');
+                    
+                    // Add welcome message after a delay
+                    setTimeout(() => {
+                        addBotMessage("Привет! Я здесь, чтобы напомнить тебе, какая ты прекрасная! Напиши мне что-нибудь, и я отвечу тебе комплиментом  😊");
+                    }, 500);
+                }, 500);
+            });
+            
+            // Send message
+            function sendMessage() {
+                const message = userInput.value.trim();
+                if (message === '') return;
+                
+                addUserMessage(message);
+                userInput.value = '';
+                
+                // Show typing indicator
+                showTypingIndicator();
+                
+                // Bot response after delay
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    const randomCompliment = compliments[Math.floor(Math.random() * compliments.length)];
+                    addBotMessage(randomCompliment);
+                    
+                    // After 3 messages, show compliment section
+                    if (document.querySelectorAll('.user-message').length >= 3) {
+                        setTimeout(() => {
+                            chatContainer.classList.add('animate__animated', 'animate__fadeOut');
+                            setTimeout(() => {
+                                chatContainer.classList.add('hidden');
+                                complimentSection.classList.remove('hidden');
+                                complimentSection.classList.add('animate__animated', 'animate__fadeIn');
+                                createConfetti();
+                            }, 500);
+                        }, 1000);
+                    }
+                }, 1500 + Math.random() * 2000);
+            }
+            
+            // Send message on button click
+            sendBtn.addEventListener('click', sendMessage);
+            
+            // Send message on Enter key
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // New compliment
+            newComplimentBtn.addEventListener('click', function() {
+                const randomCompliment = compliments[Math.floor(Math.random() * compliments.length)];
+                
+                // Create new message bubble
+                const bubble = document.createElement('div');
+                bubble.className = 'chat-bubble bg-white rounded-lg p-4 mb-4 max-w-xs mx-auto';
+                bubble.textContent = randomCompliment;
+                complimentSection.insertBefore(bubble, newComplimentBtn);
+                
+                // Show with animation
+                setTimeout(() => {
+                    bubble.classList.add('show');
+                }, 10);
+                
+                // Create confetti
+                createConfetti();
+            });
+            
+            // Helper functions
+            function addUserMessage(text) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'mb-4 flex justify-end user-message';
+                messageDiv.innerHTML = `
+                    <div class="bg-pink-600 text-white rounded-2xl p-4 max-w-xs md:max-w-md shadow">
+                        ${text}
+                    </div>
+                `;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            function addBotMessage(text) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'mb-4 flex justify-start';
+                messageDiv.innerHTML = `
+                    <div class="bg-gray-200 text-gray-800 rounded-2xl p-4 max-w-xs md:max-w-md shadow">
+                        ${text}
+                    </div>
+                `;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            function showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'mb-4 flex justify-start';
+                typingDiv.innerHTML = `
+                    <div class="bg-gray-200 rounded-2xl p-3 shadow">
+                        <div class="typing-indicator">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                `;
+                chatMessages.appendChild(typingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                typingDiv.id = 'typingIndicator';
+            }
+            
+            function hideTypingIndicator() {
+                const typingIndicator = document.getElementById('typingIndicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+            
+            function createConfetti() {
+                const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#A675F5', '#FF9F1C'];
+                
+                for (let i = 0; i < 50; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.top = -10 + 'px';
+                    confetti.style.transform = 'rotate(' + Math.random() * 360 + 'deg)';
+                    
+                    document.body.appendChild(confetti);
+                    
+                    const animationDuration = Math.random() * 3 + 2;
+                    
+                    confetti.style.transition = `all ${animationDuration}s ease-out`;
+                    
+                    setTimeout(() => {
+                        confetti.style.opacity = '1';
+                        confetti.style.top = Math.random() * 100 + 'vh';
+                        confetti.style.left = (parseFloat(confetti.style.left) + (Math.random() - 0.5) * 200) + 'px';
+                    }, 10);
+                    
+                    setTimeout(() => {
+                        confetti.style.opacity = '0';
+                        setTimeout(() => {
+                            confetti.remove();
+                        }, 1000);
+                    }, animationDuration * 1000);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
